@@ -1,37 +1,51 @@
-import pygame
-from pgtools import *
-from players import *
+import customtkinter as ctk
+from players import Human, Minimax
 
-pygame.init()
+ctk.set_appearance_mode("dark")  # Modes: "System" (standard), "Dark", "Light"
+ctk.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
-display = pygame.display.set_mode((800, 800))
+class App(ctk.CTk):
+    def __init__(self):
+        super().__init__()
 
-cell_size = 200
-board_start = (100, 100)
+        # configure window
+        self.title("Minimax Noughts & Crosses")
+        #self.iconphoto(False, tk.PhotoImage(file="icon.png"))
+        self.geometry(f"{600}x{600}")
+        
+        # configure grid layout (4x4)
+        self.grid_columnconfigure((0, 1, 2), weight=1)
+        self.grid_rowconfigure((0, 1, 2), weight=1)
 
-players = [AI("X"), Human("O")]
+        human_player = Human(self, "X")
+        self.players = [human_player, Minimax(self, "O", human_player)]
+        self.player_index = 0
 
-current_board = [
-    [" ", " ", " "],
-    [" ", " ", " "],
-    [" ", " ", " "],
-]
+        self.position_labels = [[ctk.CTkButton(self, text="-", command=lambda i=i, j=j: self.players[self.player_index].button_pressed(i, j))  for i in range(3)] for j in range(3)]
 
-def mainloop():
-    running = True
-    while running:
-        display.fill(0)
+        for i in range(3):
+            for j in range(3):
+                self.position_labels[i][j].grid(row=i, column=j, padx=20, pady=(20, 20), sticky="NSEW")
 
-        # check events
-        for event in pygame.event.get():
-            quit_check(event)
+        self.players[self.player_index].take_turn(self.gamestate())
 
-        # draw board
-        pygame.draw.line(display, (255, 255, 255), (board_start[0], board_start[1] + cell_size), (board_start[0] + 3 * cell_size, board_start[1] + cell_size))
-        pygame.draw.line(display, (255, 255, 255), (board_start[0] + cell_size, board_start[1]), (board_start[0] + cell_size, board_start[1] + 3 * cell_size))
-        pygame.draw.line(display, (255, 255, 255), (board_start[0], board_start[1] + 2 * cell_size), (board_start[0] + 3 * cell_size, board_start[1] + 2 * cell_size))
-        pygame.draw.line(display, (255, 255, 255), (board_start[0] + 2 * cell_size, board_start[1]), (board_start[0] + 2 * cell_size, board_start[1] + 3 * cell_size))
+    def gamestate(self):
+        return [[self.position_labels[i][j].cget("text") for j in range(3)] for i in range(3)]
 
-        pygame.display.update()
+    def game_won(self, gamestate):
+        return False, []
+    
+    def set_tile(self, i, j, label):
+        self.position_labels[i][j].configure(text=label)
 
-mainloop()
+        if self.game_won():
+            pass
+        else:
+            self.player_index = (self.player_index + 1) % 2
+            self.players[self.player_index].take_turn(self.gamestate())
+
+if __name__ == "__main__":
+    app = App()
+    app.mainloop()
+
+    
