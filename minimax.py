@@ -17,9 +17,9 @@ class Minimax:
             depth += row.count("-")
 
         for child in node.gen_children(self.label):
-            print(child.gamestate)
+            #print(child.gamestate)
             score = self.minimax(child, depth - 1, False)
-            print(score)
+            #print("Score:", score)
             if score > best_score:
                 best_score = score
                 best_move = child.change
