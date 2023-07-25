@@ -26,11 +26,11 @@ class Minimax:
 
         self.app.set_tile(best_move, self.label)
 
-    def evaluate_board(self, board):
+    def evaluate_board(self, board, depth):
         # Check for a win
         for row in board:
             if row.count(row[0]) == len(row) and row[0] != "-":
-                return 10 if row[0] == self.label else -10
+                return 10 - depth if row[0] == self.label else depth - 10
 
         for col in range(len(board)):
             if all(board[row][col] == board[0][col] and board[0][col] != "-" for row in range(len(board))):
@@ -46,8 +46,8 @@ class Minimax:
     
     def minimax(self, node, depth, maximising : bool):
         #print("Running - depth:", depth)
-        if depth == 0 or self.evaluate_board(node.gamestate) != 0:
-            return self.evaluate_board(node.gamestate)
+        if depth == 0 or self.evaluate_board(node.gamestate, depth) != 0:
+            return self.evaluate_board(node.gamestate, depth)
             
         if maximising:
             value = float("-inf")

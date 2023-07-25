@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from human import Human
 from minimax import Minimax
+from playsound import playsound
 
 ctk.set_appearance_mode("dark")  # Modes: "System" (standard), "Dark", "Light"
 ctk.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -36,9 +37,24 @@ class App(ctk.CTk):
 
         self.status_frame = ctk.CTkFrame(self)
         self.status_frame.grid(row=1, column=0, padx=20, pady=(10, 10), sticky="EW")
+        self.status_frame.grid_columnconfigure(0, weight=2)
+        self.status_frame.grid_columnconfigure(1, weight=1)
 
         self.status_label = ctk.CTkLabel(self.status_frame, text="", font=ctk.CTkFont("sans-serif", 30))
-        self.status_label.grid(row=0, column=0, padx=20, pady=(10, 10))
+        self.status_label.grid(row=0, column=0, padx=20, pady=(10, 10), sticky="W")
+
+        ctk.CTkButton(self.status_frame, text="Reset", command=self.reset).grid(row=0, column=1, padx=20, pady=(10, 10), sticky="EW")
+
+        self.next_player()
+
+    def reset(self):
+        self.player_index = -1
+
+        for row in self.position_labels:
+            for cell in row:
+                cell.configure(text="-")
+
+        self.spaces_free = self.w * self.h
 
         self.next_player()
 
@@ -87,6 +103,10 @@ class App(ctk.CTk):
                 self.status_label.configure(text="It's a Draw!")
             else:
                 self.status_label.configure(text=f"{winner} Wins!")
+
+            self.update()
+
+            playsound("victory.mp3")
         else:
             self.spaces_free -= 1
             self.next_player()
